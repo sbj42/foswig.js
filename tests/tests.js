@@ -2,6 +2,16 @@ var expect = require('chai').expect;
 var Foswig = require('../lib/index');
 var dictionary = require('./dictionary');
 
+function customRandom(seed) {
+	return function() {
+		seed += 0.01234;
+		if (seed >= 1) {
+			seed -= 1;
+		}
+		return seed;
+	};
+}
+
 describe('Foswig',function() {
 	describe('generateWord',function() {
 		it('should generate words of the correct length',function() {
@@ -41,6 +51,15 @@ describe('Foswig',function() {
 				expect([word]).to.not.have.members(dictionary);
 				//console.log(word);
 			}
+		});
+
+		it('can use a custom random number generator to make reproducible words',function() {
+			var markov = new Foswig(2);
+			markov.addWordsToChain(dictionary);
+
+			expect(markov.generateWord(2,10,false,undefined,customRandom(0))).to.be.equal('abilinions');
+			expect(markov.generateWord(2,10,false,undefined,customRandom(0))).to.be.equal('abilinions');
+			expect(markov.generateWord(2,10,false,undefined,customRandom(0.5))).to.be.equal('lipergin');
 		});
 	});
 });
